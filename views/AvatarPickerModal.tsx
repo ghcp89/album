@@ -36,7 +36,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({ onSelect, onClose
     setError('');
 
     try {
-      const apiKey = (window as any).process?.env?.API_KEY;
+      const apiKey = '93dc1765a4ba7431e7d2cfbfa99347a1b8bf75fc';
       
       if (!apiKey) throw new Error('Chave não configurada no Netlify');
 
