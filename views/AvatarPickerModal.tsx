@@ -43,11 +43,11 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({ onSelect, onClose
         throw new Error('API_KEY_MISSING');
       }
 
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI(apiKey);
       const finalPrompt = `A cute circular profile sticker in 3D clay style, white background, centered. Subject: ${prompt}. Educational and safe for children.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
+        model: 'gemini-1.5-flash',
         contents: {
           parts: [{ text: finalPrompt }]
         },
@@ -72,10 +72,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({ onSelect, onClose
         setError('Tente descrever de outro jeito! Ex: Um gato de óculos.');
       }
     } catch (err: any) {
-      if (err.message === 'API_KEY_MISSING') {
-        setError('Falta colar sua chave no arquivo index.html!');
-      } else {
-        setError('Erro na criação. Verifique sua conexão ou a chave de API.');
+      setError(`Erro: ${err.message}`);
       }
     } finally {
       setIsGenerating(false);
