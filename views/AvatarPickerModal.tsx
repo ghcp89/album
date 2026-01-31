@@ -36,44 +36,24 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({ onSelect, onClose
     setError('');
 
     try {
-      // Pega a chave que você colou no index.html
       const apiKey = (window as any).process?.env?.API_KEY;
       
-      if (!apiKey || apiKey === 'COLE_SUA_CHAVE_AQUI') {
-        throw new Error('API_KEY_MISSING');
-      }
+      if (!apiKey) throw new Error('Chave não configurada no Netlify');
 
       const ai = new GoogleGenAI(apiKey);
-      const finalPrompt = `A cute circular profile sticker in 3D clay style, white background, centered. Subject: ${prompt}. Educational and safe for children.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents: {
-          parts: [{ text: finalPrompt }]
-        },
-        config: {
-          imageConfig: { aspectRatio: "1:1" }
-        }
-      });
-
-      if (!response.candidates?.[0]?.content?.parts) {
-        throw new Error('EMPTY_RESPONSE');
-      }
-
-      const parts = response.candidates[0].content.parts;
-      const imagePart = parts.find(p => p.inlineData);
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
       
-      if (imagePart) {
-        onSelect({ 
-          avatarUrl: `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`, 
-          avatarSeed: undefined 
-        });
-      } else {
-        setError('Tente descrever de outro jeito! Ex: Um gato de óculos.');
-      }
+      const result = await model.generateContent(`Describe a 3D clay emoji of: ${prompt}`);
+      const response = await result.response;
+      const text = response.text();
+
+      onSelect({ 
+        avatarUrl: `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(text)}`, 
+        avatarSeed: undefined 
+      });
+      onClose();
     } catch (err: any) {
       setError(`Erro: ${err.message}`);
-      }
     } finally {
       setIsGenerating(false);
     }
